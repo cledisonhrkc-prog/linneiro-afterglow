@@ -23,6 +23,7 @@ type PlayerState = {
   toggleShuffle: () => void;
   cycleRepeat: () => void;
   exportTrack: (song?: Song) => Promise<void>;
+  exportAlbum: () => Promise<void>;
 };
 
 function indexOf(song: Song) {
@@ -145,6 +146,26 @@ export const usePlayer = create<PlayerState>((set, get) => {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+      } finally {
+        set({ exporting: false });
+      }
+    },
+    exportAlbum: async () => {
+      if (get().exporting) return;
+      set({ exporting: true });
+      try {
+        for (const target of SONGS) {
+          const blob = await engine.renderOffline(target);
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `LINNEIRO - ${target.no.toString().padStart(2, "0")} ${target.title}.wav`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          await new Promise((r) => setTimeout(r, 400));
+        }
       } finally {
         set({ exporting: false });
       }

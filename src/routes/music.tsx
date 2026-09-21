@@ -10,6 +10,7 @@ export const Route = createFileRoute("/music")({ component: Music });
 function Music() {
   const play = usePlayer((s) => s.play);
   const exportTrack = usePlayer((s) => s.exportTrack);
+  const exportAlbum = usePlayer((s) => s.exportAlbum);
   const exporting = usePlayer((s) => s.exporting);
 
   return (
@@ -37,20 +38,20 @@ function Music() {
             </button>
             <button
               type="button"
-              onClick={() => void exportTrack(SONGS[0])}
+              onClick={() => void exportAlbum()}
               disabled={exporting}
               className="inline-flex h-12 items-center gap-2 rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-raised disabled:opacity-50"
             >
               <Download className="size-4" />
-              {exporting ? "Rendering WAV…" : "Download Afterglow WAV"}
+              {exporting ? "Gerando WAV…" : "Baixar 20 WAV (DistroKid)"}
             </button>
             <a
-              href="/linneiro-afterglow.sql"
-              download="linneiro-afterglow.sql"
+              href="/artist/album-3000.jpg"
+              download="LINNEIRO-AFTERGLOW-cover-3000.jpg"
               className="inline-flex h-12 items-center gap-2 rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-raised"
             >
               <Download className="size-4" />
-              Download SQL
+              Capa 3000
             </a>
           </div>
         </div>
