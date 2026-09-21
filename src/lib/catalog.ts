@@ -35,7 +35,7 @@ export const ARTIST = {
   year: 2026,
   released: "September 19, 2026",
   genre: "Pop",
-  origin: "AI-born from a real face",
+  origin: "20 years old · 1.64m · 70kg · one voice on every track",
   portrait: "/artist/source-square.jpg",
   hero: "/artist/hero.jpg",
   albumCover: "/artist/album.jpg",

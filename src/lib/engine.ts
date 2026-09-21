@@ -436,7 +436,7 @@ class PopEngine {
   ) {
     const ctx = this.ctx!;
     const step = beat / 4;
-    const peak = section === "chorus" ? 0.14 : 0.085;
+    const peak = section === "chorus" ? 0.16 : 0.1;
     const count = Math.min(16, hook.length || 16);
     for (let i = 0; i < count; i++) {
       const deg = hook[i % hook.length];
@@ -447,48 +447,49 @@ class PopEngine {
       const osc = ctx.createOscillator();
       osc.type = "sawtooth";
       osc.frequency.value = freq;
+      const body = ctx.createOscillator();
+      body.type = "triangle";
+      body.frequency.value = freq;
       const lfo = ctx.createOscillator();
-      lfo.frequency.value = 5.2;
+      lfo.frequency.value = 5.8;
       const lfoG = ctx.createGain();
-      lfoG.gain.value = 7;
+      lfoG.gain.value = 9;
       lfo.connect(lfoG);
       lfoG.connect(osc.frequency);
+      lfoG.connect(body.frequency);
       const f1 = ctx.createBiquadFilter();
       f1.type = "peaking";
-      f1.frequency.value = 700;
-      f1.Q.value = 4;
-      f1.gain.value = 10;
+      f1.frequency.value = 620;
+      f1.Q.value = 5.2;
+      f1.gain.value = 11;
       const f2 = ctx.createBiquadFilter();
       f2.type = "peaking";
-      f2.frequency.value = section === "chorus" ? 1220 : 980;
-      f2.Q.value = 5;
-      f2.gain.value = 8;
+      f2.frequency.value = 1180;
+      f2.Q.value = 5.5;
+      f2.gain.value = 9;
+      const f3 = ctx.createBiquadFilter();
+      f3.type = "peaking";
+      f3.frequency.value = 2450;
+      f3.Q.value = 3.2;
+      f3.gain.value = 5;
       const lp = ctx.createBiquadFilter();
       lp.type = "lowpass";
-      lp.frequency.value = 1600 + open * 1400;
-      const g = envGain(ctx, nt, step * 1.35, peak, 0.012, 0.04, 0.55, 0.07);
+      lp.frequency.value = 1800 + open * 1200;
+      const g = envGain(ctx, nt, step * 1.45, peak, 0.018, 0.05, 0.58, 0.09);
       osc.connect(f1);
+      body.connect(f1);
       f1.connect(f2);
-      f2.connect(lp);
+      f2.connect(f3);
+      f3.connect(lp);
       lp.connect(g);
       g.connect(this.master!);
       if (this.reverb) g.connect(this.reverb);
       osc.start(nt);
-      osc.stop(nt + step * 1.4);
+      osc.stop(nt + step * 1.5);
+      body.start(nt);
+      body.stop(nt + step * 1.5);
       lfo.start(nt);
-      lfo.stop(nt + step * 1.4);
-
-      if (section === "chorus") {
-        const harm = ctx.createOscillator();
-        harm.type = "triangle";
-        harm.frequency.value = midiToFreq(midi + 7);
-        const hg = envGain(ctx, nt, step * 1.35, peak * 0.32, 0.02, 0.05, 0.5, 0.08);
-        harm.connect(hg);
-        hg.connect(this.master!);
-        if (this.reverb) hg.connect(this.reverb);
-        harm.start(nt);
-        harm.stop(nt + step * 1.4);
-      }
+      lfo.stop(nt + step * 1.5);
     }
   }
 
