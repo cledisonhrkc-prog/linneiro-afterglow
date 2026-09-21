@@ -9,7 +9,6 @@ export const Route = createFileRoute("/music")({ component: Music });
 
 function Music() {
   const play = usePlayer((s) => s.play);
-  const exportTrack = usePlayer((s) => s.exportTrack);
   const exportAlbum = usePlayer((s) => s.exportAlbum);
   const exporting = usePlayer((s) => s.exporting);
 
