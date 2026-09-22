@@ -28,10 +28,8 @@ function Videos() {
                 controls
                 playsInline
                 loop
-                muted
                 preload="metadata"
                 className="aspect-video w-full bg-black object-cover"
-                onPlay={() => void play(song)}
               />
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">

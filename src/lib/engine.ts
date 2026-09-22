@@ -59,6 +59,9 @@ class PopEngine {
   volume = 0.85;
   onEnd: (() => void) | null = null;
   private listeners = new Set<Listener>();
+  private vocalCache = new Map<string, AudioBuffer>();
+  private vocalSrc: AudioBufferSourceNode | null = null;
+  private hasVocal = false;
 
   subscribe(fn: Listener) {
     this.listeners.add(fn);
@@ -139,11 +142,13 @@ class PopEngine {
     if (ctx.state === "suspended") await ctx.resume();
     this.stopNodes();
     this.song = song;
+    await this.loadVocal(song.id);
     this.pauseOffset = from;
     this.startTime = ctx.currentTime - from;
     const barDur = (4 * 60) / song.bpm;
     this.nextBar = Math.max(0, Math.floor(from / barDur));
     this.playing = true;
+    this.startVocal(from, barDur);
     this.arm();
     this.emit();
   }
@@ -188,6 +193,56 @@ class PopEngine {
       cancelAnimationFrame(this.timer);
       this.timer = null;
     }
+    this.stopVocal();
+  }
+
+  private stopVocal() {
+    if (this.vocalSrc) {
+      try {
+        this.vocalSrc.stop();
+      } catch {
+        /* already stopped */
+      }
+      this.vocalSrc.disconnect();
+      this.vocalSrc = null;
+    }
+  }
+
+  private async loadVocal(id: string) {
+    this.hasVocal = false;
+    if (!this.ctx) return;
+    let buf = this.vocalCache.get(id);
+    if (!buf) {
+      try {
+        const res = await fetch(`/vocals/${id}.mp3`);
+        if (!res.ok) return;
+        buf = await this.ctx.decodeAudioData(await res.arrayBuffer());
+        this.vocalCache.set(id, buf);
+      } catch {
+        return;
+      }
+    }
+    this.hasVocal = true;
+  }
+
+  private startVocal(from: number, barDur: number) {
+    if (!this.ctx || !this.master || !this.song) return;
+    const buf = this.vocalCache.get(this.song.id);
+    if (!buf) return;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const g = this.ctx.createGain();
+    g.gain.value = 1.35;
+    src.connect(g);
+    g.connect(this.master);
+    if (this.reverb) g.connect(this.reverb);
+    const vocalAt = barDur * 2;
+    const when = this.startTime + vocalAt;
+    const offset = Math.max(0, from - vocalAt);
+    if (offset >= buf.duration) return;
+    const startAt = Math.max(when, this.ctx.currentTime + 0.02);
+    src.start(startAt, offset);
+    this.vocalSrc = src;
   }
 
   private arm() {
@@ -436,7 +491,7 @@ class PopEngine {
   ) {
     const ctx = this.ctx!;
     const step = beat / 4;
-    const peak = section === "chorus" ? 0.16 : 0.1;
+    const peak = (section === "chorus" ? 0.16 : 0.1) * (this.hasVocal ? 0.28 : 1);
     const count = Math.min(16, hook.length || 16);
     for (let i = 0; i < count; i++) {
       const deg = hook[i % hook.length];
@@ -550,6 +605,16 @@ class PopEngine {
     const resumeFrom = snap.playing && snap.song ? this.currentTime() : 0;
     if (this.playing) this.pause();
 
+    let vocalArr: ArrayBuffer | null = null;
+    try {
+      const res = await fetch(`/vocals/${song.id}.mp3`);
+      if (res.ok) vocalArr = await res.arrayBuffer();
+    } catch {
+      vocalArr = null;
+    }
+    const prevVocal = this.hasVocal;
+    this.hasVocal = Boolean(vocalArr);
+
     try {
       this.ctx = offline as unknown as AudioContext;
       this.noise = this.makeNoise(offline);
@@ -576,12 +641,24 @@ class PopEngine {
       this.song = song;
       this.startTime = 0;
       const barDur = (4 * 60) / song.bpm;
+      if (vocalArr) {
+        const vbuf = await offline.decodeAudioData(vocalArr.slice(0));
+        const vsrc = offline.createBufferSource();
+        vsrc.buffer = vbuf;
+        const vg = offline.createGain();
+        vg.gain.value = 1.35;
+        vsrc.connect(vg);
+        vg.connect(master);
+        vg.connect(reverb);
+        vsrc.start(barDur * 2);
+      }
       for (let bar = 0; bar < song.bars; bar++) {
         this.scheduleBar(bar, bar * barDur);
       }
       const rendered = await offline.startRendering();
       return audioBufferToWav(rendered);
     } finally {
+      this.hasVocal = prevVocal;
       this.ctx = snap.ctx;
       this.master = snap.master;
       this.analyser = snap.analyser;
