@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, Play } from "lucide-react";
 import { ClipPlayer } from "@/components/ClipPlayer";
 import { LyricNow, LyricPanel } from "@/components/LyricPanel";
-import { Visualizer } from "@/components/Visualizer";
 import { SONGS, songById, songClip, songDuration, songStill } from "@/lib/catalog";
 import { useEngineClock } from "@/hooks/use-engine-clock";
 import { usePlayer } from "@/lib/player-store";
@@ -33,7 +32,6 @@ function Watch() {
       <section className="relative mx-auto max-w-6xl overflow-hidden rounded-none md:mt-6 md:rounded-xl md:border md:border-line">
         <div className="relative aspect-video bg-surface">
           <ClipPlayer src={songClip(song)} poster={songStill(song)} playing={on} />
-          <Visualizer song={song} playing={on} overlay />
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-bg via-transparent to-bg/25" />
           <button
             type="button"

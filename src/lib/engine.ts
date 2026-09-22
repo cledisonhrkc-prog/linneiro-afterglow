@@ -206,6 +206,9 @@ class PopEngine {
       this.vocalSrc.disconnect();
       this.vocalSrc = null;
     }
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
   }
 
   private async loadVocal(id: string) {
@@ -232,7 +235,7 @@ class PopEngine {
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
     const g = this.ctx.createGain();
-    g.gain.value = 1.35;
+    g.gain.value = 1.85;
     src.connect(g);
     g.connect(this.master);
     if (this.reverb) g.connect(this.reverb);
@@ -243,6 +246,24 @@ class PopEngine {
     const startAt = Math.max(when, this.ctx.currentTime + 0.02);
     src.start(startAt, offset);
     this.vocalSrc = src;
+  }
+
+  private speakLine(bar: number) {
+    if (this.hasVocal) return;
+    if (typeof window === "undefined" || !window.speechSynthesis || !this.song) return;
+    const line = this.song.lyrics.find((l) => l.bar === bar);
+    if (!line) return;
+    const u = new SpeechSynthesisUtterance(line.text);
+    u.lang = "en-US";
+    u.rate = Math.min(1.12, Math.max(0.84, this.song.bpm / 112));
+    u.pitch = 0.82;
+    u.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const male =
+      voices.find((v) => /en/i.test(v.lang) && /male|david|daniel|fred|alex|google us/i.test(v.name)) ??
+      voices.find((v) => /^en/i.test(v.lang));
+    if (male) u.voice = male;
+    window.speechSynthesis.speak(u);
   }
 
   private arm() {
@@ -303,6 +324,7 @@ class PopEngine {
       this.lead(t, beat, song, scale, hook, section, open);
     }
     if (section === "chorus") this.riserTail(t, beat * 0.15, song.energy * 0.04);
+    this.speakLine(bar);
   }
 
   private drums(t: number, beat: number, song: Song, section: Section, duck: GainNode) {
