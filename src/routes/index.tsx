@@ -50,11 +50,10 @@ function Home() {
               Play AFTERGLOW
             </button>
             <Link
-              to="/watch/$id"
-              params={{ id: featured.id }}
+              to="/videos"
               className="inline-flex h-12 items-center rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-raised"
             >
-              Watch Afterglow
+              20 clipes
             </Link>
           </div>
           <p className="mt-5 text-xs tabular-nums text-faint">

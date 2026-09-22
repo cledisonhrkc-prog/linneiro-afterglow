@@ -65,15 +65,25 @@ function Watch() {
           <p className="mt-2 text-sm text-muted">
             LINNEIRO · AFTERGLOW · {song.bpm} BPM · {song.scale}
           </p>
-          <button
-            type="button"
-            onClick={() => void exportTrack(song)}
-            disabled={exporting}
-            className="mt-5 inline-flex h-11 items-center gap-2 rounded-full border border-line px-5 text-sm font-medium text-fg transition-colors hover:bg-raised disabled:opacity-50"
-          >
-            <Download className="size-4" />
-            {exporting ? "Rendering WAV…" : "Download WAV"}
-          </button>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => void exportTrack(song)}
+              disabled={exporting}
+              className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-5 text-sm font-medium text-fg transition-colors hover:bg-raised disabled:opacity-50"
+            >
+              <Download className="size-4" />
+              {exporting ? "Gerando WAV…" : "Download WAV"}
+            </button>
+            <a
+              href={songClip(song)}
+              download={`LINNEIRO-${song.no.toString().padStart(2, "0")}-${song.title}.mp4`}
+              className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-5 text-sm font-medium text-fg transition-colors hover:bg-raised"
+            >
+              <Download className="size-4" />
+              Download clipe
+            </a>
+          </div>
           <div className="mt-10 max-h-[50vh] overflow-y-auto">
             <LyricPanel song={song} bar={isThis ? bar : -1} />
           </div>

@@ -4,10 +4,8 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { to: "/", label: "Home" },
-  { to: "/music", label: "Music" },
-  { to: "/pack-1", label: "Pack 1" },
-  { to: "/pack-2", label: "Pack 2" },
-  { to: "/copy", label: "Copiar" },
+  { to: "/music", label: "Músicas" },
+  { to: "/videos", label: "Clipes" },
 ] as const;
 
 export function SiteHeader() {
