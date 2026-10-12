@@ -27,10 +27,10 @@ export function ClipPlayer({ src, poster, playing }: Props) {
       src={src}
       poster={poster}
       loop
-      muted
       playsInline
       preload="auto"
-      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      controls
+      className="absolute inset-0 z-20 h-full w-full object-cover"
     />
   );
 }

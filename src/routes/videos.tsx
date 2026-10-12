@@ -15,7 +15,7 @@ function Videos() {
       <p className="text-xs tracking-[0.28em] text-muted uppercase">20 clipes · 20 músicas</p>
       <h1 className="mt-2 font-display text-4xl">AFTERGLOW</h1>
       <p className="mt-3 max-w-xl text-sm text-muted">
-        Cada faixa: clipe + play da música + WAV. Toca aqui. Baixa o que for subir.
+        Cada clipe já tem a voz. Aperta play no vídeo. Música toca o beat com a mesma voz.
       </p>
       <div className="mt-10 grid grid-cols-1 gap-6 pb-10 sm:grid-cols-2">
         {SONGS.map((song) => {
