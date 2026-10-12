@@ -319,7 +319,7 @@ class PopEngine {
     if (song.energy > 0.45 && (chorusLike || section === "verse")) {
       this.arp(t, beat, song, scale, chord, open);
     }
-    if (section !== "intro") {
+    if (section !== "intro" && !this.hasVocal) {
       const hook = chorusLike ? song.chorusHook : song.verseHook;
       this.lead(t, beat, song, scale, hook, section, open);
     }
